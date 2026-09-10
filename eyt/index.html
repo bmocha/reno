@@ -1,0 +1,135 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Lambda YouTube Embed</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 2rem;
+    }
+
+    /*
+     * Desktop:
+     * Match the original Lambda dimensions of 560 x 315.
+     *
+     * Mobile:
+     * Scale the video to the available width while maintaining
+     * the 16:9 aspect ratio.
+     */
+    .video-container {
+        width: 1120px;
+        max-width: 100%;
+    }
+
+    .video-container iframe {
+        display: block;
+        width: 1120px;
+        height: 630px;
+        max-width: 100%;
+        border: 0;
+    }
+
+    @media (max-width: 1120px) {
+        .video-container iframe {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+        }
+    }
+
+    .error {
+        color: #b00020;
+    }
+</style>
+
+</head> <body>
+<h1>Lambda YouTube Embed</h1>
+
+<div id="video-container" class="video-container"></div>
+
+<script>
+    // Get the "url" query parameter.
+    //
+    // Example:
+    // ?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DVIDEO_ID
+    //
+    const params = new URLSearchParams(window.location.search);
+    const url = params.get("url") || "";
+
+    let videoId = "";
+    let start = "";
+
+    if (url) {
+        try {
+            const parsed = new URL(url);
+
+            /*
+             * Handle both:
+             *
+             * https://youtu.be/VIDEO_ID
+             *
+             * and:
+             *
+             * https://www.youtube.com/watch?v=VIDEO_ID
+             */
+            
+            if (parsed.hostname === "youtu.be") {
+                videoId = parsed.pathname.substring(1);
+            } else {
+                videoId = parsed.searchParams.get("v") || "";
+            }
+
+            /*
+             * Handle an optional timestamp:
+             *
+             * ?t=90
+             * ?t=90s
+             *
+             * This matches the behavior of the original Lambda.
+             */
+            let t = parsed.searchParams.get("t") || "";
+
+            t = t.replace(/s/g, "");
+
+            if (t) {
+                start = `?start=${encodeURIComponent(t)}`;
+            }
+
+        } catch (error) {
+            console.error("Invalid YouTube URL:", error);
+        }
+    }
+
+    const container = document.getElementById("video-container");
+
+    if (videoId) {
+
+        const iframe = document.createElement("iframe");
+
+        iframe.width = "1120";
+        iframe.height = "630";
+
+        iframe.src =
+            `https://www.youtube.com/embed/${encodeURIComponent(videoId)}${start}`;
+
+        iframe.title = "YouTube video";
+
+        iframe.frameBorder = "0";
+        /*
+        iframe.allow =
+            "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        */
+    
+        iframe.allow =
+            "encrypted-media; picture-in-picture; web-share";
+
+        iframe.allowFullscreen = true;
+
+        container.appendChild(iframe);
+
+    } else {
+
+        container.innerHTML =
+            '<p class="error">No valid YouTube video URL was provided.</p>';
+
+    }
+</script>
+
+</body> </html>
