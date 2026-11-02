@@ -15,4 +15,4 @@ DONE
 
 cat ${SRC}/utils.js ${SRC}/TributeEvents.js ${SRC}/TributeMenuEvents.js ${SRC}/TributeRange.js ${SRC}/TributeSearch.js ${SRC}/Tribute.js | sed -E '/^(import|export default)/d' >> ${DST}
 
-echo "export default Tribute;" >> tribute_mod.js
+echo -e ";\n export default Tribute;" >> tribute_mod.js

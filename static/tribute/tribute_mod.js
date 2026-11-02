@@ -1821,4 +1821,5 @@ class Tribute {
   }
 }
 
-export default Tribute;
+;
+ export default Tribute;
